@@ -1,0 +1,122 @@
+[
+  {
+    "id": "pizza-1",
+    "name": "Margherita Pizza",
+    "category": "Pizza",
+    "price": 249,
+    "description": "Classic pizza with tomato sauce, mozzarella and fresh basil.",
+    "image": "/images/margherita.jpg"
+  },
+  {
+    "id": "pizza-2",
+    "name": "Farmhouse Pizza",
+    "category": "Pizza",
+    "price": 349,
+    "description": "Loaded with onion, capsicum, tomato and fresh vegetables.",
+    "image": "/images/farmhouse.jpg"
+  },
+  {
+    "id": "pizza-3",
+    "name": "Pepperoni Pizza",
+    "category": "Pizza",
+    "price": 399,
+    "description": "Classic pizza topped with mozzarella and pepperoni.",
+    "image": "/images/pepperoni.jpg"
+  },
+  {
+    "id": "burger-1",
+    "name": "Classic Chicken Burger",
+    "category": "Burgers",
+    "price": 199,
+    "description": "Juicy chicken patty with lettuce, tomato and special sauce.",
+    "image": "/images/chicken-burger.jpg"
+  },
+  {
+    "id": "burger-2",
+    "name": "Veggie Burger",
+    "category": "Burgers",
+    "price": 179,
+    "description": "Crispy vegetable patty with fresh lettuce and creamy sauce.",
+    "image": "/images/veggie-burger.jpg"
+  },
+  {
+    "id": "burger-3",
+    "name": "Cheese Burger",
+    "category": "Burgers",
+    "price": 219,
+    "description": "Classic burger with a juicy patty and melted cheese.",
+    "image": "/images/cheese-burger.jpg"
+  },
+  {
+    "id": "drink-1",
+    "name": "Coca Cola",
+    "category": "Beverages",
+    "price": 79,
+    "description": "Chilled Coca Cola.",
+    "image": "/images/coke.jpg"
+  },
+  {
+    "id": "drink-2",
+    "name": "Fresh Lemonade",
+    "category": "Beverages",
+    "price": 99,
+    "description": "Freshly prepared lemonade with a refreshing taste.",
+    "image": "/images/lemonade.jpg"
+  },
+  {
+    "id": "drink-3",
+    "name": "Cold Coffee",
+    "category": "Beverages",
+    "price": 149,
+    "description": "Creamy chilled coffee served with ice.",
+    "image": "/images/cold-coffee.jpg"
+  },
+  {
+    "id": "dessert-1",
+    "name": "Chocolate Brownie",
+    "category": "Desserts",
+    "price": 129,
+    "description": "Warm chocolate brownie with a rich chocolate flavour.",
+    "image": "/images/brownie.jpg"
+  },
+  {
+    "id": "dessert-2",
+    "name": "Chocolate Cake",
+    "category": "Desserts",
+    "price": 159,
+    "description": "Soft and moist chocolate cake.",
+    "image": "/images/chocolate-cake.jpg"
+  },
+  {
+    "id": "dessert-3",
+    "name": "Vanilla Ice Cream",
+    "category": "Desserts",
+    "price": 99,
+    "description": "Creamy classic vanilla ice cream.",
+    "image": "/images/ice-cream.jpg"
+  },
+  {
+    "id": "side-1",
+    "name": "French Fries",
+    "category": "Sides",
+    "price": 129,
+    "description": "Crispy golden french fries.",
+    "image": "/images/fries.jpg"
+  },
+  {
+    "id": "side-2",
+    "name": "Cheese Fries",
+    "category": "Sides",
+    "price": 169,
+    "description": "Crispy fries topped with melted cheese.",
+    "image": "/images/cheese-fries.jpg"
+  },
+  {
+    "id": "side-3",
+    "name": "Garlic Bread",
+    "category": "Sides",
+    "price": 149,
+    "description": "Toasted garlic bread with herbs and butter.",
+    "image": "/images/garlic-bread.jpg"
+  }
+]

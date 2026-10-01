@@ -21,6 +21,14 @@ export async function getOrders(): Promise<Order[]> {
     .toArray();
 }
 
+export async function getOrderById(
+  id: string
+): Promise<Order | null> {
+  const collection = await getCollection();
+
+  return collection.findOne({ id });
+}
+
 export async function addOrder(order: Order): Promise<Order> {
   const collection = await getCollection();
 

@@ -3,11 +3,12 @@
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowRight,
   Minus,
   Plus,
   ShoppingBag,
   Trash2,
-  ArrowRight,
+  Utensils,
 } from "lucide-react";
 
 import { useCart } from "@/components/cart/CartContext";
@@ -25,22 +26,22 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-[#fffaf7]">
         <header className="border-b bg-white">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
             <Link
               href="/"
               className="flex items-center gap-2 text-2xl font-black text-orange-500"
             >
-              <ShoppingBag size={28} />
+              <Utensils size={27} />
               Foodie
             </Link>
 
             <Link
               href="/"
-              className="flex items-center gap-2 text-sm font-semibold text-gray-600 transition hover:text-orange-500"
+              className="flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-orange-500"
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={17} />
               Back to Menu
             </Link>
           </div>
@@ -55,19 +56,18 @@ export default function CartPage() {
               />
             </div>
 
-            <h1 className="mt-6 text-3xl font-black text-gray-900">
+            <h1 className="mt-6 text-3xl font-black">
               Your Cart is Empty
             </h1>
 
-            <p className="mt-3 leading-7 text-gray-500">
-              Looks like you haven't added anything to your
-              cart yet. Explore our menu and find something
-              delicious!
+            <p className="mt-3 text-sm leading-7 text-gray-500">
+              Looks like you haven't added anything
+              yet.
             </p>
 
             <Link
               href="/"
-              className="mt-7 inline-flex items-center gap-2 rounded-xl bg-orange-500 px-6 py-3.5 font-bold text-white transition hover:bg-orange-600"
+              className="mt-7 inline-flex items-center gap-2 rounded-xl bg-orange-500 px-6 py-3.5 font-bold text-white hover:bg-orange-600"
             >
               Explore Menu
               <ArrowRight size={18} />
@@ -79,76 +79,69 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Header */}
+    <main className="min-h-screen bg-[#fffaf7]">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
           <Link
             href="/"
             className="flex items-center gap-2 text-2xl font-black text-orange-500"
           >
-            <ShoppingBag size={28} />
+            <Utensils size={27} />
             Foodie
           </Link>
 
           <Link
             href="/"
-            className="flex items-center gap-2 text-sm font-semibold text-gray-600 transition hover:text-orange-500"
+            className="flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-orange-500"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={17} />
             Continue Shopping
           </Link>
         </div>
       </header>
 
-      {/* Main */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Title */}
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-orange-500">
-            Your Order
+          <p className="text-sm font-black uppercase tracking-wider text-orange-500">
+            Your Selection
           </p>
 
-          <h1 className="mt-1 text-3xl font-black text-gray-900 sm:text-4xl">
+          <h1 className="mt-2 text-3xl font-black sm:text-4xl">
             Shopping Cart
           </h1>
 
           <p className="mt-2 text-gray-500">
-            {cart.reduce(
-              (count, item) => count + item.quantity,
-              0
-            )}{" "}
-            items in your cart
+            Review your food and customizations before
+            checkout.
           </p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
-          {/* Cart Items */}
+          {/* ITEMS */}
+
           <div className="space-y-4">
             {cart.map((item) => (
               <div
-                key={item.id}
-                className="group rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5"
+                key={item.cartItemId}
+                className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6"
               >
                 <div className="flex gap-4">
-                  {/* Image */}
-                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-gray-100 sm:h-32 sm:w-32">
+                  <div className="h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-gray-100 sm:h-32 sm:w-32">
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      className="h-full w-full object-cover"
                     />
                   </div>
 
-                  {/* Content */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <span className="text-xs font-bold uppercase tracking-wide text-orange-500">
+                        <p className="text-xs font-bold uppercase tracking-wide text-orange-500">
                           {item.category}
-                        </span>
+                        </p>
 
-                        <h2 className="mt-1 text-lg font-bold text-gray-900 sm:text-xl">
+                        <h2 className="mt-1 text-lg font-black text-gray-900 sm:text-xl">
                           {item.name}
                         </h2>
                       </div>
@@ -156,59 +149,84 @@ export default function CartPage() {
                       <button
                         type="button"
                         onClick={() =>
-                          removeFromCart(item.id)
+                          removeFromCart(
+                            item.cartItemId
+                          )
                         }
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-gray-400 transition hover:bg-red-50 hover:text-red-500"
                         aria-label={`Remove ${item.name}`}
-                        className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-500"
                       >
-                        <Trash2 size={19} />
+                        <Trash2 size={18} />
                       </button>
                     </div>
 
-                    <p className="mt-1 hidden text-sm leading-6 text-gray-500 sm:block">
-                      {item.description}
-                    </p>
+                    {/* ADDONS */}
 
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                      {/* Quantity */}
-                      <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50">
+                    {item.addons.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-xs font-bold text-gray-500">
+                          Extras:
+                        </p>
+
+                        <div className="mt-1 flex flex-wrap gap-1.5">
+                          {item.addons.map(
+                            (addon) => (
+                              <span
+                                key={addon.id}
+                                className="rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-semibold text-orange-600"
+                              >
+                                {addon.name}
+                                {addon.price > 0 &&
+                                  ` +₹${addon.price}`}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center rounded-xl bg-gray-50 p-1">
                         <button
                           type="button"
                           onClick={() =>
-                            decreaseQuantity(item.id)
+                            decreaseQuantity(
+                              item.cartItemId
+                            )
                           }
-                          className="flex h-9 w-9 items-center justify-center text-gray-600 transition hover:text-orange-500"
-                          aria-label={`Decrease ${item.name} quantity`}
+                          className="flex h-9 w-9 items-center justify-center rounded-lg bg-white shadow-sm hover:text-orange-500"
                         >
                           <Minus size={16} />
                         </button>
 
-                        <span className="w-8 text-center text-sm font-bold text-gray-900">
+                        <span className="flex min-w-10 justify-center text-sm font-black">
                           {item.quantity}
                         </span>
 
                         <button
                           type="button"
                           onClick={() =>
-                            increaseQuantity(item.id)
+                            increaseQuantity(
+                              item.cartItemId
+                            )
                           }
-                          className="flex h-9 w-9 items-center justify-center text-gray-600 transition hover:text-orange-500"
-                          aria-label={`Increase ${item.name} quantity`}
+                          className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-500 text-white shadow-sm hover:bg-orange-600"
                         >
                           <Plus size={16} />
                         </button>
                       </div>
 
-                      {/* Price */}
                       <div className="text-right">
                         <p className="text-xs text-gray-400">
-                          ₹{item.price} × {item.quantity}
+                          ₹{item.itemTotal} ×{" "}
+                          {item.quantity}
                         </p>
 
-                        <p className="text-lg font-black text-gray-900">
+                        <p className="text-xl font-black text-orange-500">
                           ₹
                           {(
-                            item.price * item.quantity
+                            item.itemTotal *
+                            item.quantity
                           ).toFixed(2)}
                         </p>
                       </div>
@@ -219,10 +237,11 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* Order Summary */}
+          {/* SUMMARY */}
+
           <aside className="h-fit lg:sticky lg:top-6">
-            <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm sm:p-7">
-              <h2 className="text-xl font-black text-gray-900">
+            <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+              <h2 className="text-xl font-black">
                 Order Summary
               </h2>
 
@@ -232,7 +251,7 @@ export default function CartPage() {
                     Subtotal
                   </span>
 
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-bold">
                     ₹{subtotal.toFixed(2)}
                   </span>
                 </div>
@@ -242,25 +261,20 @@ export default function CartPage() {
                     Tax
                   </span>
 
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-bold">
                     ₹{tax.toFixed(2)}
                   </span>
                 </div>
 
                 <div className="border-t pt-4">
-                  <div className="flex items-end justify-between">
-                    <div>
-                      <p className="font-bold text-gray-900">
-                        Total
-                      </p>
-                      <p className="mt-1 text-xs text-gray-400">
-                        Including 5% tax
-                      </p>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-black">
+                      Total
+                    </span>
 
-                    <p className="text-2xl font-black text-orange-500">
+                    <span className="text-2xl font-black text-orange-500">
                       ₹{total.toFixed(2)}
-                    </p>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -270,25 +284,16 @@ export default function CartPage() {
                 className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-4 font-bold text-white transition hover:bg-orange-600"
               >
                 Proceed to Checkout
-                <ArrowRight size={19} />
+                <ArrowRight size={18} />
               </Link>
 
               <Link
                 href="/"
-                className="mt-3 flex w-full items-center justify-center rounded-xl border border-gray-200 px-5 py-3.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="mt-4 flex w-full items-center justify-center gap-2 text-sm font-semibold text-gray-500 hover:text-orange-500"
               >
+                <ArrowLeft size={16} />
                 Continue Shopping
               </Link>
-
-              <div className="mt-6 rounded-xl bg-orange-50 p-4">
-                <p className="text-sm font-semibold text-orange-700">
-                  🍴 Fresh food, delivered with care
-                </p>
-                <p className="mt-1 text-xs leading-5 text-orange-600">
-                  Your order will be prepared after
-                  successful checkout.
-                </p>
-              </div>
             </div>
           </aside>
         </div>

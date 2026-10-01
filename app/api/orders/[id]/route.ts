@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { updateOrderStatus } from "@/lib/orders";
+import {
+  getOrderById,
+  updateOrderStatus,
+} from "@/lib/orders";
+
 import { OrderStatus } from "@/types/order";
 
 export const runtime = "nodejs";
@@ -12,11 +16,36 @@ const validStatuses: OrderStatus[] = [
   "Completed",
 ];
 
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
+
+    const order = await getOrderById(id);
+
+    if (!order) {
+      return NextResponse.json(
+        { message: "Order not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error("GET ORDER ERROR:", error);
+
+    return NextResponse.json(
+      { message: "Failed to fetch order" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(
   request: Request,
-  context: {
-    params: Promise<{ id: string }>;
-  }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await context.params;
@@ -25,12 +54,8 @@ export async function PATCH(
 
     if (!validStatuses.includes(body.status)) {
       return NextResponse.json(
-        {
-          message: "Invalid order status",
-        },
-        {
-          status: 400,
-        }
+        { message: "Invalid order status" },
+        { status: 400 }
       );
     }
 
@@ -41,12 +66,8 @@ export async function PATCH(
 
     if (!order) {
       return NextResponse.json(
-        {
-          message: `Order ${id} not found`,
-        },
-        {
-          status: 404,
-        }
+        { message: `Order ${id} not found` },
+        { status: 404 }
       );
     }
 
@@ -55,10 +76,7 @@ export async function PATCH(
       order,
     });
   } catch (error) {
-    console.error(
-      "UPDATE ORDER STATUS ERROR:",
-      error
-    );
+    console.error("UPDATE ORDER STATUS ERROR:", error);
 
     return NextResponse.json(
       {
@@ -67,9 +85,7 @@ export async function PATCH(
             ? error.message
             : "Failed to update order status",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

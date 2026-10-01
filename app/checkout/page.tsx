@@ -32,13 +32,7 @@ interface FormErrors {
 }
 
 export default function CheckoutPage() {
-  const {
-    cart,
-    subtotal,
-    tax,
-    total,
-    clearCart,
-  } = useCart();
+  const { cart, subtotal, tax, total, clearCart } = useCart();
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -51,10 +45,7 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const updateField = (
-    field: keyof FormData,
-    value: string
-  ) => {
+  const updateField = (field: keyof FormData, value: string) => {
     setFormData((current) => ({
       ...current,
       [field]: value,
@@ -80,23 +71,19 @@ export default function CheckoutPage() {
     if (!formData.mobile.trim()) {
       newErrors.mobile = "Mobile number is required.";
     } else if (!/^[6-9]\d{9}$/.test(formData.mobile)) {
-      newErrors.mobile =
-        "Enter a valid 10-digit Indian mobile number.";
+      newErrors.mobile = "Enter a valid 10-digit Indian mobile number.";
     }
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
-    } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-    ) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Enter a valid email address.";
     }
 
     if (!formData.address.trim()) {
       newErrors.address = "Delivery address is required.";
     } else if (formData.address.trim().length < 10) {
-      newErrors.address =
-        "Address must contain at least 10 characters.";
+      newErrors.address = "Address must contain at least 10 characters.";
     }
 
     setErrors(newErrors);
@@ -104,9 +91,7 @@ export default function CheckoutPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateForm()) {
@@ -114,9 +99,7 @@ export default function CheckoutPage() {
     }
 
     if (cart.length === 0) {
-      setServerError(
-        "Your cart is empty. Please add items before checkout."
-      );
+      setServerError("Your cart is empty. Please add items before checkout.");
       return;
     }
 
@@ -134,6 +117,9 @@ export default function CheckoutPage() {
           items: cart.map((item) => ({
             menuItemId: item.id,
             quantity: item.quantity,
+            addons: item.addons.map((addon) => ({
+              id: addon.id,
+            })),
           })),
         }),
       });
@@ -141,12 +127,12 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to place order."
-        );
+        throw new Error(data.message || "Failed to place order.");
       }
 
       clearCart();
+
+      localStorage.setItem("foodie-last-order", data.order.id);
 
       window.location.href = `/order-success?orderId=${data.order.id}`;
     } catch (error) {
@@ -155,7 +141,7 @@ export default function CheckoutPage() {
       setServerError(
         error instanceof Error
           ? error.message
-          : "Something went wrong while placing your order."
+          : "Something went wrong while placing your order.",
       );
     } finally {
       setIsSubmitting(false);
@@ -188,10 +174,7 @@ export default function CheckoutPage() {
         <section className="flex min-h-[75vh] items-center justify-center px-4">
           <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-sm sm:p-12">
             <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-orange-50">
-              <ShoppingBag
-                size={42}
-                className="text-orange-500"
-              />
+              <ShoppingBag size={42} className="text-orange-500" />
             </div>
 
             <h1 className="mt-6 text-3xl font-black text-gray-900">
@@ -199,8 +182,8 @@ export default function CheckoutPage() {
             </h1>
 
             <p className="mt-3 leading-7 text-gray-500">
-              Add some delicious items to your cart before
-              continuing to checkout.
+              Add some delicious items to your cart before continuing to
+              checkout.
             </p>
 
             <Link
@@ -294,10 +277,7 @@ export default function CheckoutPage() {
             <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm sm:p-7">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50">
-                  <User
-                    size={21}
-                    className="text-orange-500"
-                  />
+                  <User size={21} className="text-orange-500" />
                 </div>
 
                 <div>
@@ -331,10 +311,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={formData.name}
                       onChange={(event) =>
-                        updateField(
-                          "name",
-                          event.target.value
-                        )
+                        updateField("name", event.target.value)
                       }
                       placeholder="Enter your full name"
                       className={`w-full rounded-xl border bg-gray-50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:bg-white focus:ring-2 ${
@@ -375,10 +352,7 @@ export default function CheckoutPage() {
                       onChange={(event) =>
                         updateField(
                           "mobile",
-                          event.target.value.replace(
-                            /\D/g,
-                            ""
-                          )
+                          event.target.value.replace(/\D/g, ""),
                         )
                       }
                       placeholder="10-digit mobile"
@@ -417,10 +391,7 @@ export default function CheckoutPage() {
                       type="email"
                       value={formData.email}
                       onChange={(event) =>
-                        updateField(
-                          "email",
-                          event.target.value
-                        )
+                        updateField("email", event.target.value)
                       }
                       placeholder="you@example.com"
                       className={`w-full rounded-xl border bg-gray-50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:bg-white focus:ring-2 ${
@@ -458,10 +429,7 @@ export default function CheckoutPage() {
                       rows={4}
                       value={formData.address}
                       onChange={(event) =>
-                        updateField(
-                          "address",
-                          event.target.value
-                        )
+                        updateField("address", event.target.value)
                       }
                       placeholder="House/Flat number, street, city, state..."
                       className={`w-full resize-none rounded-xl border bg-gray-50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:bg-white focus:ring-2 ${
@@ -485,10 +453,7 @@ export default function CheckoutPage() {
             <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm sm:p-7">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50">
-                  <CreditCard
-                    size={21}
-                    className="text-orange-500"
-                  />
+                  <CreditCard size={21} className="text-orange-500" />
                 </div>
 
                 <div>
@@ -504,10 +469,7 @@ export default function CheckoutPage() {
               <div className="mt-6 flex items-center justify-between rounded-2xl border-2 border-orange-500 bg-orange-50 p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white">
-                    <CreditCard
-                      size={20}
-                      className="text-orange-500"
-                    />
+                    <CreditCard size={20} className="text-orange-500" />
                   </div>
 
                   <div>
@@ -521,10 +483,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500">
-                  <Check
-                    size={14}
-                    className="text-white"
-                  />
+                  <Check size={14} className="text-white" />
                 </div>
               </div>
             </div>
@@ -549,10 +508,7 @@ export default function CheckoutPage() {
               {/* Items */}
               <div className="mt-6 max-h-72 space-y-4 overflow-y-auto pr-1">
                 {cart.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex gap-3"
-                  >
+                  <div key={item.id} className="flex gap-3">
                     <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-gray-100">
                       <img
                         src={item.image}
@@ -571,15 +527,12 @@ export default function CheckoutPage() {
                       </p>
 
                       <p className="mt-1 text-xs text-gray-400">
-                        ₹{item.price} × {item.quantity}
+                        ₹{item.itemTotal} × {item.quantity}
                       </p>
                     </div>
 
                     <p className="text-sm font-bold text-gray-900">
-                      ₹
-                      {(
-                        item.price * item.quantity
-                      ).toFixed(2)}
+                      {(item.itemTotal * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}
@@ -590,9 +543,7 @@ export default function CheckoutPage() {
               {/* Totals */}
               <div className="space-y-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">
-                    Subtotal
-                  </span>
+                  <span className="text-gray-500">Subtotal</span>
 
                   <span className="font-semibold text-gray-900">
                     ₹{subtotal.toFixed(2)}
@@ -600,9 +551,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">
-                    Tax
-                  </span>
+                  <span className="text-gray-500">Tax</span>
 
                   <span className="font-semibold text-gray-900">
                     ₹{tax.toFixed(2)}
@@ -612,9 +561,7 @@ export default function CheckoutPage() {
                 <div className="border-t pt-4">
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="font-bold text-gray-900">
-                        Total
-                      </p>
+                      <p className="font-bold text-gray-900">Total</p>
                       <p className="mt-1 text-xs text-gray-400">
                         Including 5% tax
                       </p>
@@ -648,14 +595,11 @@ export default function CheckoutPage() {
 
               {/* Security */}
               <div className="mt-5 flex items-start gap-3 rounded-xl bg-gray-50 p-4">
-                <Lock
-                  size={17}
-                  className="mt-0.5 shrink-0 text-green-500"
-                />
+                <Lock size={17} className="mt-0.5 shrink-0 text-green-500" />
 
                 <p className="text-xs leading-5 text-gray-500">
-                  Your information is securely submitted to
-                  the restaurant order system.
+                  Your information is securely submitted to the restaurant order
+                  system.
                 </p>
               </div>
 

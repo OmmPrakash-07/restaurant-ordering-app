@@ -1,14 +1,58 @@
 import { NextResponse } from "next/server";
 
 import menu from "@/data/menu.json";
+import { getAddonById, Addon } from "@/data/addons";
 import { addOrder, getOrders } from "@/lib/orders";
-import { Order } from "@/types/order";
+import { Order, OrderStatus } from "@/types/order";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+const validStatuses: OrderStatus[] = [
+  "Pending",
+  "Accepted",
+  "Preparing",
+  "Completed",
+];
+
+export async function GET(request: Request) {
   try {
-    const orders = await getOrders();
+    const { searchParams } = new URL(request.url);
+
+    const status = searchParams.get("status");
+    const search = searchParams.get("search")?.trim().toLowerCase();
+
+    let orders = await getOrders();
+
+    // Filter by status
+    if (
+      status &&
+      status !== "All" &&
+      validStatuses.includes(status as OrderStatus)
+    ) {
+      orders = orders.filter(
+        (order) => order.status === status
+      );
+    }
+
+    // Search by order ID or customer details
+    if (search) {
+      orders = orders.filter((order) => {
+        const orderId = order.id.toLowerCase();
+        const customerName =
+          order.customer.name.toLowerCase();
+        const customerEmail =
+          order.customer.email.toLowerCase();
+        const customerMobile =
+          order.customer.mobile.toLowerCase();
+
+        return (
+          orderId.includes(search) ||
+          customerName.includes(search) ||
+          customerEmail.includes(search) ||
+          customerMobile.includes(search)
+        );
+      });
+    }
 
     return NextResponse.json(orders);
   } catch (error) {
@@ -45,10 +89,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const orderItems = body.items.map(
+    const orderItems: Order["items"] = body.items.map(
       (item: {
         menuItemId: string;
         quantity: number;
+        addons?: { id: string }[];
       }) => {
         const menuItem = menu.find(
           (menuItem) =>
@@ -68,19 +113,56 @@ export async function POST(request: Request) {
           throw new Error("Invalid item quantity");
         }
 
+        const requestedAddons = Array.isArray(
+          item.addons
+        )
+          ? item.addons
+          : [];
+
+        const validatedAddons: Addon[] = [];
+
+        for (const requestedAddon of requestedAddons) {
+          const addon = getAddonById(
+            menuItem,
+            requestedAddon.id
+          );
+
+          if (!addon) {
+            throw new Error(
+              `Invalid add-on for ${menuItem.name}: ${requestedAddon.id}`
+            );
+          }
+
+          validatedAddons.push(addon);
+        }
+
+        const addonTotal = validatedAddons.reduce(
+          (sum, addon) => sum + addon.price,
+          0
+        );
+
+        const itemTotal =
+          menuItem.price + addonTotal;
+
         return {
           menuItemId: menuItem.id,
           name: menuItem.name,
           price: menuItem.price,
           quantity: item.quantity,
+          addons: validatedAddons,
+          itemTotal,
         };
       }
     );
 
-    const subtotal = orderItems.reduce(
-        (sum: number, item: Order["items"][number]) =>
-        sum + item.price * item.quantity,
-        0
+    const subtotal = Number(
+      orderItems
+        .reduce(
+          (sum, item) =>
+            sum + item.itemTotal * item.quantity,
+          0
+        )
+        .toFixed(2)
     );
 
     const tax = Number(

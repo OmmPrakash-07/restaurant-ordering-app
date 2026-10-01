@@ -9,27 +9,66 @@ import {
 } from "react";
 
 import { MenuItem } from "@/types/menu";
+import { Addon } from "@/data/addons";
 
-interface CartItem extends MenuItem {
+export interface CartItem extends MenuItem {
+  cartItemId: string;
   quantity: number;
+  addons: Addon[];
+  itemTotal: number;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: MenuItem) => void;
-  increaseQuantity: (id: string) => void;
-  decreaseQuantity: (id: string) => void;
-  removeFromCart: (id: string) => void;
+
+  addToCart: (
+    item: MenuItem,
+    addons?: Addon[]
+  ) => void;
+
+  increaseQuantity: (cartItemId: string) => void;
+
+  decreaseQuantity: (cartItemId: string) => void;
+
+  removeFromCart: (cartItemId: string) => void;
+
   clearCart: () => void;
+
   subtotal: number;
   tax: number;
   total: number;
   cartCount: number;
 }
 
-const CartContext = createContext<CartContextType | undefined>(
-  undefined
-);
+const CartContext = createContext<
+  CartContextType | undefined
+>(undefined);
+
+function createCartItemId(
+  item: MenuItem,
+  addons: Addon[]
+) {
+  const addonIds = addons
+    .map((addon) => addon.id)
+    .sort()
+    .join("-");
+
+  return addonIds
+    ? `${item.id}__${addonIds}`
+    : item.id;
+}
+
+function calculateItemTotal(
+  item: MenuItem,
+  addons: Addon[]
+) {
+  const addonTotal = addons.reduce(
+    (sum, addon) => sum + addon.price,
+    0
+  );
+
+  return item.price + addonTotal;
+}
 
 export function CartProvider({
   children,
@@ -39,44 +78,99 @@ export function CartProvider({
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load cart from localStorage
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem("foodie-cart");
+      const savedCart =
+        localStorage.getItem("foodie-cart");
 
       if (savedCart) {
-        setCart(JSON.parse(savedCart));
+        const parsedCart = JSON.parse(savedCart);
+
+        if (Array.isArray(parsedCart)) {
+          const migratedCart: CartItem[] =
+            parsedCart.map((item) => {
+              const addons = Array.isArray(item.addons)
+                ? item.addons
+                : [];
+
+              const itemTotal =
+                typeof item.itemTotal === "number"
+                  ? item.itemTotal
+                  : calculateItemTotal(
+                      item,
+                      addons
+                    );
+
+              return {
+                ...item,
+                cartItemId:
+                  item.cartItemId ??
+                  createCartItemId(item, addons),
+                addons,
+                itemTotal,
+                quantity:
+                  typeof item.quantity === "number"
+                    ? item.quantity
+                    : 1,
+              };
+            });
+
+          setCart(migratedCart);
+        }
       }
     } catch (error) {
-      console.error("Failed to load cart:", error);
+      console.error(
+        "Failed to load cart:",
+        error
+      );
     } finally {
       setIsLoaded(true);
     }
   }, []);
 
-  // Save cart only after localStorage has been loaded
   useEffect(() => {
     if (!isLoaded) return;
 
     try {
-      localStorage.setItem("foodie-cart", JSON.stringify(cart));
+      localStorage.setItem(
+        "foodie-cart",
+        JSON.stringify(cart)
+      );
     } catch (error) {
-      console.error("Failed to save cart:", error);
+      console.error(
+        "Failed to save cart:",
+        error
+      );
     }
   }, [cart, isLoaded]);
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = (
+    item: MenuItem,
+    addons: Addon[] = []
+  ) => {
+    const cartItemId = createCartItemId(
+      item,
+      addons
+    );
+
+    const itemTotal = calculateItemTotal(
+      item,
+      addons
+    );
+
     setCart((currentCart) => {
       const existingItem = currentCart.find(
-        (cartItem) => cartItem.id === item.id
+        (cartItem) =>
+          cartItem.cartItemId === cartItemId
       );
 
       if (existingItem) {
         return currentCart.map((cartItem) =>
-          cartItem.id === item.id
+          cartItem.cartItemId === cartItemId
             ? {
                 ...cartItem,
-                quantity: cartItem.quantity + 1,
+                quantity:
+                  cartItem.quantity + 1,
               }
             : cartItem
         );
@@ -86,16 +180,21 @@ export function CartProvider({
         ...currentCart,
         {
           ...item,
+          cartItemId,
           quantity: 1,
+          addons,
+          itemTotal,
         },
       ];
     });
   };
 
-  const increaseQuantity = (id: string) => {
+  const increaseQuantity = (
+    cartItemId: string
+  ) => {
     setCart((currentCart) =>
       currentCart.map((item) =>
-        item.id === id
+        item.cartItemId === cartItemId
           ? {
               ...item,
               quantity: item.quantity + 1,
@@ -105,11 +204,13 @@ export function CartProvider({
     );
   };
 
-  const decreaseQuantity = (id: string) => {
+  const decreaseQuantity = (
+    cartItemId: string
+  ) => {
     setCart((currentCart) =>
       currentCart
         .map((item) =>
-          item.id === id
+          item.cartItemId === cartItemId
             ? {
                 ...item,
                 quantity: item.quantity - 1,
@@ -120,9 +221,14 @@ export function CartProvider({
     );
   };
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = (
+    cartItemId: string
+  ) => {
     setCart((currentCart) =>
-      currentCart.filter((item) => item.id !== id)
+      currentCart.filter(
+        (item) =>
+          item.cartItemId !== cartItemId
+      )
     );
   };
 
@@ -131,16 +237,22 @@ export function CartProvider({
   };
 
   const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) =>
+      sum + item.itemTotal * item.quantity,
     0
   );
 
-  const tax = subtotal * 0.05;
+  const tax = Number(
+    (subtotal * 0.05).toFixed(2)
+  );
 
-  const total = subtotal + tax;
+  const total = Number(
+    (subtotal + tax).toFixed(2)
+  );
 
   const cartCount = cart.reduce(
-    (count, item) => count + item.quantity,
+    (count, item) =>
+      count + item.quantity,
     0
   );
 

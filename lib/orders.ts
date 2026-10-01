@@ -1,49 +1,30 @@
-import { promises as fs } from "fs";
-import path from "path";
-
+import clientPromise from "@/lib/mongodb";
 import { Order } from "@/types/order";
 
-const ordersFile = path.join(
-  process.cwd(),
-  "data",
-  "orders.json"
-);
+const DATABASE_NAME = "restaurant_ordering";
+const COLLECTION_NAME = "orders";
 
-async function ensureOrdersFile() {
-  try {
-    await fs.access(ordersFile);
-  } catch {
-    await fs.writeFile(
-      ordersFile,
-      "[]",
-      "utf-8"
-    );
-  }
+async function getCollection() {
+  const client = await clientPromise;
+
+  const db = client.db(DATABASE_NAME);
+
+  return db.collection<Order>(COLLECTION_NAME);
 }
 
 export async function getOrders(): Promise<Order[]> {
-  await ensureOrdersFile();
+  const collection = await getCollection();
 
-  const file = await fs.readFile(
-    ordersFile,
-    "utf-8"
-  );
-
-  return JSON.parse(file);
+  return collection
+    .find({})
+    .sort({ createdAt: -1 })
+    .toArray();
 }
 
-export async function addOrder(
-  order: Order
-): Promise<Order> {
-  const orders = await getOrders();
+export async function addOrder(order: Order): Promise<Order> {
+  const collection = await getCollection();
 
-  const updatedOrders = [order, ...orders];
-
-  await fs.writeFile(
-    ordersFile,
-    JSON.stringify(updatedOrders, null, 2),
-    "utf-8"
-  );
+  await collection.insertOne(order);
 
   return order;
 }
@@ -52,26 +33,19 @@ export async function updateOrderStatus(
   id: string,
   status: Order["status"]
 ): Promise<Order | null> {
-  const orders = await getOrders();
+  const collection = await getCollection();
 
-  const orderIndex = orders.findIndex(
-    (order) => order.id === id
+  const result = await collection.findOneAndUpdate(
+    { id },
+    {
+      $set: {
+        status,
+      },
+    },
+    {
+      returnDocument: "after",
+    }
   );
 
-  if (orderIndex === -1) {
-    return null;
-  }
-
-  orders[orderIndex] = {
-    ...orders[orderIndex],
-    status,
-  };
-
-  await fs.writeFile(
-    ordersFile,
-    JSON.stringify(orders, null, 2),
-    "utf-8"
-  );
-
-  return orders[orderIndex];
+  return result ?? null;
 }

@@ -80,12 +80,25 @@ function formatTime(dateString: string) {
   });
 }
 
+/*
+ * Supports both old and new orders.
+ *
+ * Old orders may not have itemTotal.
+ * New orders have itemTotal including add-ons.
+ */
+function getItemUnitPrice(item: Order["items"][number]) {
+  return item.itemTotal ?? item.price ?? 0;
+}
+
+function getItemTotal(item: Order["items"][number]) {
+  return getItemUnitPrice(item) * (item.quantity ?? 0);
+}
+
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const [status, setStatus] = useState<"All" | OrderStatus>("All");
-
   const [search, setSearch] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -114,14 +127,21 @@ export default function OrderHistoryPage() {
 
       const query = params.toString();
 
-      const response = await fetch(`/api/orders${query ? `?${query}` : ""}`, {
-        cache: "no-store",
-      });
+      const response = await fetch(
+        `/api/orders${query ? `?${query}` : ""}`,
+        {
+          cache: "no-store",
+        },
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to load orders.");
+      }
+
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid order data received from server.");
       }
 
       setOrders(data);
@@ -152,9 +172,13 @@ export default function OrderHistoryPage() {
       total: orders.length,
       pending: orders.filter((order) => order.status === "Pending").length,
       active: orders.filter(
-        (order) => order.status === "Accepted" || order.status === "Preparing",
+        (order) =>
+          order.status === "Accepted" ||
+          order.status === "Preparing",
       ).length,
-      completed: orders.filter((order) => order.status === "Completed").length,
+      completed: orders.filter(
+        (order) => order.status === "Completed",
+      ).length,
     };
   }, [orders]);
 
@@ -209,7 +233,10 @@ export default function OrderHistoryPage() {
             disabled={refreshing}
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-gray-700 transition hover:border-orange-300 hover:text-orange-500 disabled:opacity-60"
           >
-            <RefreshCw size={17} className={refreshing ? "animate-spin" : ""} />
+            <RefreshCw
+              size={17}
+              className={refreshing ? "animate-spin" : ""}
+            />
             Refresh
           </button>
         </div>
@@ -413,7 +440,10 @@ function OrderCard({
 }) {
   const status = statusStyles[order.status];
 
-  const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = order.items.reduce(
+    (sum, item) => sum + (item.quantity ?? 0),
+    0,
+  );
 
   const isActive = order.status !== "Completed";
 
@@ -424,12 +454,16 @@ function OrderCard({
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <p className="text-lg font-black text-gray-900">{order.id}</p>
+              <p className="text-lg font-black text-gray-900">
+                {order.id}
+              </p>
 
               <span
                 className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold ${status.badge}`}
               >
-                <span className={`h-2 w-2 rounded-full ${status.dot}`} />
+                <span
+                  className={`h-2 w-2 rounded-full ${status.dot}`}
+                />
 
                 {order.status}
               </span>
@@ -454,13 +488,14 @@ function OrderCard({
             </div>
           </div>
 
+          {/* Order Total */}
           <div className="md:text-right">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
               Total
             </p>
 
-            <p className="mt-1 text-2xl font-black text-orange-500">
-              ₹{order.total.toFixed(2)}
+            <p className="mt-1 text-xl font-black text-gray-900">
+              ₹{(order.total ?? 0).toFixed(2)}
             </p>
           </div>
         </div>
@@ -469,39 +504,44 @@ function OrderCard({
       {/* Items */}
       <div className="p-5 sm:p-6">
         <div className="space-y-3">
-          {order.items.slice(0, 3).map((item) => (
-            <div
-              key={`${order.id}-${item.menuItemId}-${item.name}`}
-              className="flex items-center justify-between gap-4"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-gray-900">
-                  {item.name}
-                </p>
+          {order.items.slice(0, 3).map((item) => {
+            const itemUnitPrice = getItemUnitPrice(item);
+            const itemTotal = getItemTotal(item);
 
-                <p className="mt-1 text-xs text-gray-400">
-                  ₹{item.itemTotal.toFixed(2)} × {item.quantity}
-                </p>
+            return (
+              <div
+                key={`${order.id}-${item.menuItemId}-${item.name}`}
+                className="flex items-center justify-between gap-4"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-gray-900">
+                    {item.name}
+                  </p>
 
-                {item.addons?.length > 0 && (
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {item.addons.map((addon) => (
-                      <span
-                        key={`${item.menuItemId}-${addon.id}`}
-                        className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-600"
-                      >
-                        + {addon.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                  <p className="mt-1 text-xs text-gray-400">
+                    ₹{itemUnitPrice.toFixed(2)} × {item.quantity}
+                  </p>
+
+                  {item.addons?.length > 0 && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {item.addons.map((addon) => (
+                        <span
+                          key={`${item.menuItemId}-${addon.id}`}
+                          className="rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-600"
+                        >
+                          + {addon.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <p className="shrink-0 text-sm font-bold text-gray-900">
+                  ₹{itemTotal.toFixed(2)}
+                </p>
               </div>
-
-              <p className="shrink-0 text-sm font-bold text-gray-900">
-                ₹{(item.itemTotal * item.quantity).toFixed(2)}
-              </p>
-            </div>
-          ))}
+            );
+          })}
 
           {order.items.length > 3 && (
             <p className="pt-1 text-xs font-semibold text-gray-400">
@@ -513,7 +553,9 @@ function OrderCard({
 
         {/* Status text */}
         <div className="mt-5 rounded-xl bg-gray-50 p-3">
-          <p className="text-xs font-semibold text-gray-500">{status.text}</p>
+          <p className="text-xs font-semibold text-gray-500">
+            {status.text}
+          </p>
         </div>
 
         {/* Actions */}
@@ -528,7 +570,9 @@ function OrderCard({
 
           {isActive && (
             <Link
-              href={`/order-tracking?orderId=${encodeURIComponent(order.id)}`}
+              href={`/order-tracking?orderId=${encodeURIComponent(
+                order.id,
+              )}`}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-bold text-white transition hover:bg-orange-600"
             >
               <MapPin size={17} />
@@ -599,10 +643,14 @@ function OrderDetailsModal({
                 <p className="mt-1 font-black">{order.status}</p>
               </div>
 
-              <span className={`h-3 w-3 rounded-full ${status.dot}`} />
+              <span
+                className={`h-3 w-3 rounded-full ${status.dot}`}
+              />
             </div>
 
-            <p className="mt-2 text-xs font-medium opacity-80">{status.text}</p>
+            <p className="mt-2 text-xs font-medium opacity-80">
+              {status.text}
+            </p>
           </div>
 
           {/* Customer */}
@@ -615,19 +663,19 @@ function OrderDetailsModal({
               <InfoRow
                 icon={<User size={17} />}
                 label="Name"
-                value={order.customer.name}
+                value={order.customer?.name ?? "Not available"}
               />
 
               <InfoRow
                 icon={<Phone size={17} />}
                 label="Mobile"
-                value={order.customer.mobile}
+                value={order.customer?.mobile ?? "Not available"}
               />
 
               <InfoRow
                 icon={<MapPin size={17} />}
                 label="Address"
-                value={order.customer.address}
+                value={order.customer?.address ?? "Not available"}
                 full
               />
 
@@ -644,41 +692,52 @@ function OrderDetailsModal({
 
           {/* Items */}
           <div>
-            <h3 className="text-lg font-black text-gray-900">Items</h3>
+            <h3 className="text-lg font-black text-gray-900">
+              Items
+            </h3>
 
             <div className="mt-4 divide-y rounded-2xl border border-gray-100">
-              {order.items.map((item) => (
-                <div key={`${item.menuItemId}-${item.name}`} className="p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-bold text-gray-900">{item.name}</p>
+              {order.items.map((item, index) => {
+                const itemUnitPrice = getItemUnitPrice(item);
+                const itemTotal = getItemTotal(item);
 
-                      <p className="mt-1 text-xs text-gray-400">
-                        ₹{(item.itemTotal ?? item.price ?? 0).toFixed(2)} ×{" "}
-                        {item.quantity}
+                return (
+                  <div
+                    key={`${order.id}-${item.menuItemId}-${item.name}-${index}`}
+                    className="p-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-bold text-gray-900">
+                          {item.name}
+                        </p>
+
+                        <p className="mt-1 text-xs text-gray-400">
+                          ₹{itemUnitPrice.toFixed(2)} × {item.quantity}
+                        </p>
+                      </div>
+
+                      <p className="font-black text-gray-900">
+                        ₹{itemTotal.toFixed(2)}
                       </p>
                     </div>
 
-                    <p className="font-black text-gray-900">
-                      ₹{(item.itemTotal * item.quantity).toFixed(2)}
-                    </p>
+                    {item.addons?.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {item.addons.map((addon) => (
+                          <span
+                            key={`${item.menuItemId}-${addon.id}`}
+                            className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600"
+                          >
+                            {addon.name} +₹
+                            {(addon.price ?? 0).toFixed(2)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-
-                  {item.addons?.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {item.addons.map((addon) => (
-                        <span
-                          key={addon.id}
-                          className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600"
-                        >
-                          {addon.name} +₹
-                          {addon.price}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -707,7 +766,9 @@ function OrderDetailsModal({
 
               <div className="border-t pt-3">
                 <div className="flex justify-between">
-                  <span className="font-bold text-gray-900">Total</span>
+                  <span className="font-bold text-gray-900">
+                    Total
+                  </span>
 
                   <span className="text-xl font-black text-orange-500">
                     ₹{(order.total ?? 0).toFixed(2)}
@@ -720,7 +781,9 @@ function OrderDetailsModal({
           {/* Actions */}
           {order.status !== "Completed" && (
             <Link
-              href={`/order-tracking?orderId=${encodeURIComponent(order.id)}`}
+              href={`/order-tracking?orderId=${encodeURIComponent(
+                order.id,
+              )}`}
               onClick={onClose}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3.5 font-bold text-white transition hover:bg-orange-600"
             >
@@ -747,7 +810,11 @@ function InfoRow({
   full?: boolean;
 }) {
   return (
-    <div className={`rounded-xl bg-gray-50 p-4 ${full ? "sm:col-span-2" : ""}`}>
+    <div
+      className={`rounded-xl bg-gray-50 p-4 ${
+        full ? "sm:col-span-2" : ""
+      }`}
+    >
       <div className="flex items-center gap-2 text-gray-400">
         {icon}
 

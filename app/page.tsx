@@ -62,27 +62,21 @@ export default function HomePage() {
   const [menuError, setMenuError] = useState("");
 
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] =
-    useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
-  const [selectedItem, setSelectedItem] =
-    useState<MenuItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
-  const [selectedAddons, setSelectedAddons] =
-    useState<Addon[]>([]);
+  const [selectedAddons, setSelectedAddons] = useState<Addon[]>([]);
 
   const [currentReview, setCurrentReview] = useState(0);
 
-  const [recentOrder, setRecentOrder] =
-    useState<Order | null>(null);
+  const [recentOrder, setRecentOrder] = useState<Order | null>(null);
 
-  const [recentOrderLoading, setRecentOrderLoading] =
-    useState(true);
+  const [recentOrderLoading, setRecentOrderLoading] = useState(true);
 
-  const [mobileMenuOpen, setMobileMenuOpen] =
-    useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function fetchMenu() {
@@ -103,9 +97,7 @@ export default function HomePage() {
         setMenu(data);
       } catch (error) {
         console.error("Menu fetch error:", error);
-        setMenuError(
-          "Unable to load menu. Please try again."
-        );
+        setMenuError("Unable to load menu. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -115,9 +107,7 @@ export default function HomePage() {
   }, []);
 
   const loadRecentOrder = async () => {
-    const orderId = localStorage.getItem(
-      "foodie-last-order"
-    );
+    const orderId = localStorage.getItem("foodie-last-order");
 
     if (!orderId) {
       setRecentOrder(null);
@@ -130,7 +120,7 @@ export default function HomePage() {
         `/api/orders/${encodeURIComponent(orderId)}`,
         {
           cache: "no-store",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -142,10 +132,7 @@ export default function HomePage() {
 
       setRecentOrder(data);
     } catch (error) {
-      console.error(
-        "Failed to load recent order:",
-        error
-      );
+      console.error("Failed to load recent order:", error);
     } finally {
       setRecentOrderLoading(false);
     }
@@ -164,24 +151,17 @@ export default function HomePage() {
       }
     };
 
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       clearInterval(interval);
 
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
   useEffect(() => {
-    const savedFavorites =
-      localStorage.getItem("foodie-favorites");
+    const savedFavorites = localStorage.getItem("foodie-favorites");
 
     if (savedFavorites) {
       try {
@@ -191,34 +171,26 @@ export default function HomePage() {
           setFavorites(parsed);
         }
       } catch {
-        console.error(
-          "Failed to load favorites"
-        );
+        console.error("Failed to load favorites");
       }
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      "foodie-favorites",
-      JSON.stringify(favorites)
-    );
+    localStorage.setItem("foodie-favorites", JSON.stringify(favorites));
   }, [favorites]);
 
   const filteredMenu = useMemo(() => {
     return menu.filter((item) => {
       const matchesCategory =
-        selectedCategory === "All" ||
-        item.category === selectedCategory;
+        selectedCategory === "All" || item.category === selectedCategory;
 
       const searchText = search.toLowerCase().trim();
 
       const matchesSearch =
         !searchText ||
         item.name.toLowerCase().includes(searchText) ||
-        item.description
-          .toLowerCase()
-          .includes(searchText);
+        item.description.toLowerCase().includes(searchText);
 
       return matchesCategory && matchesSearch;
     });
@@ -240,14 +212,10 @@ export default function HomePage() {
 
   const toggleAddon = (addon: Addon) => {
     setSelectedAddons((current) => {
-      const exists = current.some(
-        (item) => item.id === addon.id
-      );
+      const exists = current.some((item) => item.id === addon.id);
 
       if (exists) {
-        return current.filter(
-          (item) => item.id !== addon.id
-        );
+        return current.filter((item) => item.id !== addon.id);
       }
 
       return [...current, addon];
@@ -265,32 +233,25 @@ export default function HomePage() {
     setFavorites((current) =>
       current.includes(itemId)
         ? current.filter((id) => id !== itemId)
-        : [...current, itemId]
+        : [...current, itemId],
     );
   };
 
   const nextReview = () => {
-    setCurrentReview(
-      (current) =>
-        (current + 1) % reviews.length
-    );
+    setCurrentReview((current) => (current + 1) % reviews.length);
   };
 
   const previousReview = () => {
     setCurrentReview(
-      (current) =>
-        (current - 1 + reviews.length) %
-        reviews.length
+      (current) => (current - 1 + reviews.length) % reviews.length,
     );
   };
 
-  const selectedItemAddons = selectedItem
-    ? getAddonsForItem(selectedItem)
-    : [];
+  const selectedItemAddons = selectedItem ? getAddonsForItem(selectedItem) : [];
 
   const selectedAddonTotal = selectedAddons.reduce(
     (sum, addon) => sum + addon.price,
-    0
+    0,
   );
 
   const selectedItemTotal = selectedItem
@@ -302,10 +263,7 @@ export default function HomePage() {
       {/* NAVBAR */}
       <header className="sticky top-0 z-40 border-b bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="text-2xl font-black tracking-tight"
-          >
+          <Link href="/" className="text-2xl font-black tracking-tight">
             foodie<span className="text-orange-500">.</span>
           </Link>
 
@@ -352,20 +310,12 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             {/* Mobile menu button */}
             <button
-              onClick={() =>
-                setMobileMenuOpen(
-                  (current) => !current
-                )
-              }
+              onClick={() => setMobileMenuOpen((current) => !current)}
               className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 text-gray-700 transition hover:border-orange-300 hover:text-orange-500 md:hidden"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? (
-                <X size={20} />
-              ) : (
-                <ShoppingBag size={19} />
-              )}
+              {mobileMenuOpen ? <X size={20} /> : <ShoppingBag size={19} />}
             </button>
 
             {/* Cart */}
@@ -375,9 +325,7 @@ export default function HomePage() {
             >
               <ShoppingCart size={18} />
 
-              <span className="hidden sm:inline">
-                Cart
-              </span>
+              <span className="hidden sm:inline">Cart</span>
 
               {cartCount > 0 && (
                 <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-black">
@@ -394,9 +342,7 @@ export default function HomePage() {
             <nav className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6">
               <a
                 href="#menu"
-                onClick={() =>
-                  setMobileMenuOpen(false)
-                }
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-orange-50 hover:text-orange-500"
               >
                 Menu
@@ -404,9 +350,7 @@ export default function HomePage() {
 
               <a
                 href="#offers"
-                onClick={() =>
-                  setMobileMenuOpen(false)
-                }
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-orange-50 hover:text-orange-500"
               >
                 Offers
@@ -414,9 +358,7 @@ export default function HomePage() {
 
               <a
                 href="#reviews"
-                onClick={() =>
-                  setMobileMenuOpen(false)
-                }
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-orange-50 hover:text-orange-500"
               >
                 Reviews
@@ -425,9 +367,7 @@ export default function HomePage() {
               {/* NEW: Mobile My Orders */}
               <Link
                 href="/order-history"
-                onClick={() =>
-                  setMobileMenuOpen(false)
-                }
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-orange-50 hover:text-orange-500"
               >
                 <History size={18} />
@@ -436,9 +376,7 @@ export default function HomePage() {
 
               <Link
                 href="/admin/orders"
-                onClick={() =>
-                  setMobileMenuOpen(false)
-                }
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-orange-50 hover:text-orange-500"
               >
                 Admin
@@ -463,15 +401,12 @@ export default function HomePage() {
             <h1 className="max-w-2xl text-5xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
               Good food,
               <br />
-              <span className="text-orange-500">
-                good mood.
-              </span>
+              <span className="text-orange-500">good mood.</span>
             </h1>
 
             <p className="mt-6 max-w-xl text-base leading-7 text-gray-400 sm:text-lg">
-              Discover delicious meals made fresh for you.
-              Order your favourites and enjoy a fast,
-              simple food experience.
+              Discover delicious meals made fresh for you. Order your favourites
+              and enjoy a fast, simple food experience.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -493,18 +428,9 @@ export default function HomePage() {
             </div>
 
             <div className="mt-10 grid max-w-lg grid-cols-3 gap-5 border-t border-gray-800 pt-7">
-              <HeroStat
-                value="4.9"
-                label="Rating"
-              />
-              <HeroStat
-                value="30 min"
-                label="Delivery"
-              />
-              <HeroStat
-                value="15+"
-                label="Dishes"
-              />
+              <HeroStat value="4.9" label="Rating" />
+              <HeroStat value="30 min" label="Delivery" />
+              <HeroStat value="15+" label="Dishes" />
             </div>
           </div>
 
@@ -529,8 +455,7 @@ export default function HomePage() {
                   </p>
 
                   <h2 className="mt-1 text-2xl font-black text-white">
-                    {menu[0]?.name ??
-                      "Fresh & Delicious"}
+                    {menu[0]?.name ?? "Fresh & Delicious"}
                   </h2>
 
                   <div className="mt-3 flex items-center justify-between">
@@ -539,10 +464,7 @@ export default function HomePage() {
                     </span>
 
                     <span className="flex items-center gap-1 text-sm font-bold text-yellow-400">
-                      <Star
-                        size={15}
-                        fill="currentColor"
-                      />
+                      <Star size={15} fill="currentColor" />
                       4.9
                     </span>
                   </div>
@@ -560,38 +482,29 @@ export default function HomePage() {
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <Clock3
-                    size={17}
-                    className="text-orange-500"
-                  />
+                  <Clock3 size={17} className="text-orange-500" />
 
                   <p className="text-xs font-black uppercase tracking-wider text-orange-500">
                     Recent Order
                   </p>
                 </div>
 
-                <h2 className="mt-2 text-xl font-black">
-                  {recentOrder.id}
-                </h2>
+                <h2 className="mt-2 text-xl font-black">{recentOrder.id}</h2>
 
                 <p className="mt-1 text-sm text-gray-500">
                   {recentOrder.items.length} item
-                  {recentOrder.items.length > 1
-                    ? "s"
-                    : ""}{" "}
-                  · ₹{recentOrder.total.toFixed(2)}
+                  {recentOrder.items.length > 1 ? "s" : ""} · ₹
+                  {recentOrder.total.toFixed(2)}
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <OrderStatusBadge
-                  status={recentOrder.status}
-                />
+                <OrderStatusBadge status={recentOrder.status} />
 
                 {/* FIXED: Pass order ID */}
                 <Link
                   href={`/order-tracking?orderId=${encodeURIComponent(
-                    recentOrder.id
+                    recentOrder.id,
                   )}`}
                   className="inline-flex items-center gap-2 rounded-xl bg-gray-950 px-4 py-3 text-sm font-black text-white transition hover:bg-orange-500"
                 >
@@ -626,29 +539,21 @@ export default function HomePage() {
                   "Completed",
                 ];
 
-                const currentIndex =
-                  statuses.indexOf(
-                    recentOrder.status
-                  );
+                const currentIndex = statuses.indexOf(recentOrder.status);
 
-                const completed =
-                  index <= currentIndex;
+                const completed = index <= currentIndex;
 
                 return (
                   <div key={status}>
                     <div
                       className={`h-1.5 rounded-full ${
-                        completed
-                          ? "bg-orange-500"
-                          : "bg-orange-100"
+                        completed ? "bg-orange-500" : "bg-orange-100"
                       }`}
                     />
 
                     <p
                       className={`mt-2 text-[9px] font-bold sm:text-xs ${
-                        completed
-                          ? "text-orange-600"
-                          : "text-gray-400"
+                        completed ? "text-orange-600" : "text-gray-400"
                       }`}
                     >
                       {status}
@@ -673,9 +578,7 @@ export default function HomePage() {
                 </span>
               </div>
 
-              <h2 className="mt-2 text-3xl font-black">
-                Popular picks
-              </h2>
+              <h2 className="mt-2 text-3xl font-black">Popular picks</h2>
             </div>
 
             <a
@@ -692,9 +595,7 @@ export default function HomePage() {
               <TrendingCard
                 key={item.id}
                 item={item}
-                onAdd={() =>
-                  openCustomizeModal(item)
-                }
+                onAdd={() => openCustomizeModal(item)}
               />
             ))}
           </div>
@@ -721,15 +622,11 @@ export default function HomePage() {
                 </h3>
 
                 <p className="mt-3 max-w-sm text-sm leading-6 text-orange-100">
-                  Customize your favourite pizza with
-                  delicious extra toppings.
+                  Customize your favourite pizza with delicious extra toppings.
                 </p>
               </div>
 
-              <Sparkles
-                size={42}
-                className="shrink-0 text-orange-100"
-              />
+              <Sparkles size={42} className="shrink-0 text-orange-100" />
             </div>
           </div>
 
@@ -747,15 +644,11 @@ export default function HomePage() {
                 </h3>
 
                 <p className="mt-3 max-w-sm text-sm leading-6 text-gray-400">
-                  Freshly prepared meals delivered right
-                  to your doorstep.
+                  Freshly prepared meals delivered right to your doorstep.
                 </p>
               </div>
 
-              <Truck
-                size={42}
-                className="shrink-0 text-orange-500"
-              />
+              <Truck size={42} className="shrink-0 text-orange-500" />
             </div>
           </div>
         </div>
@@ -776,8 +669,7 @@ export default function HomePage() {
           </h2>
 
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-gray-500">
-            Browse our menu, customize your meal and
-            add it to your cart.
+            Browse our menu, customize your meal and add it to your cart.
           </p>
         </div>
 
@@ -792,9 +684,7 @@ export default function HomePage() {
             <input
               type="text"
               value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
+              onChange={(event) => setSearch(event.target.value)}
               placeholder="Search pizza, burger, dessert..."
               className="w-full rounded-2xl border border-gray-200 bg-gray-50 py-4 pl-12 pr-4 text-sm outline-none transition focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
             />
@@ -806,9 +696,7 @@ export default function HomePage() {
           {categories.map((category) => (
             <button
               key={category}
-              onClick={() =>
-                setSelectedCategory(category)
-              }
+              onClick={() => setSelectedCategory(category)}
               className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold transition ${
                 selectedCategory === category
                   ? "bg-gray-950 text-white"
@@ -823,33 +711,27 @@ export default function HomePage() {
         {/* MENU CONTENT */}
         {loading ? (
           <div className="grid gap-5 pt-8 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map(
-              (_, index) => (
-                <div
-                  key={index}
-                  className="overflow-hidden rounded-3xl border border-gray-100 bg-white"
-                >
-                  <div className="h-56 animate-pulse bg-gray-100" />
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="overflow-hidden rounded-3xl border border-gray-100 bg-white"
+              >
+                <div className="h-56 animate-pulse bg-gray-100" />
 
-                  <div className="space-y-3 p-5">
-                    <div className="h-5 w-2/3 animate-pulse rounded bg-gray-100" />
-                    <div className="h-4 w-full animate-pulse rounded bg-gray-100" />
-                    <div className="h-10 w-full animate-pulse rounded-xl bg-gray-100" />
-                  </div>
+                <div className="space-y-3 p-5">
+                  <div className="h-5 w-2/3 animate-pulse rounded bg-gray-100" />
+                  <div className="h-4 w-full animate-pulse rounded bg-gray-100" />
+                  <div className="h-10 w-full animate-pulse rounded-xl bg-gray-100" />
                 </div>
-              )
-            )}
+              </div>
+            ))}
           </div>
         ) : menuError ? (
           <div className="mt-8 rounded-3xl border border-red-100 bg-red-50 p-8 text-center">
-            <p className="font-bold text-red-600">
-              {menuError}
-            </p>
+            <p className="font-bold text-red-600">{menuError}</p>
 
             <button
-              onClick={() =>
-                window.location.reload()
-              }
+              onClick={() => window.location.reload()}
               className="mt-4 rounded-xl bg-gray-950 px-5 py-3 text-sm font-bold text-white"
             >
               Try Again
@@ -857,14 +739,9 @@ export default function HomePage() {
           </div>
         ) : filteredMenu.length === 0 ? (
           <div className="mt-8 rounded-3xl bg-gray-50 p-12 text-center">
-            <Search
-              size={35}
-              className="mx-auto text-gray-300"
-            />
+            <Search size={35} className="mx-auto text-gray-300" />
 
-            <h3 className="mt-4 text-xl font-black">
-              No items found
-            </h3>
+            <h3 className="mt-4 text-xl font-black">No items found</h3>
 
             <p className="mt-2 text-sm text-gray-500">
               Try another search or category.
@@ -887,12 +764,8 @@ export default function HomePage() {
                 key={item.id}
                 item={item}
                 favorite={favorites.includes(item.id)}
-                onFavorite={() =>
-                  toggleFavorite(item.id)
-                }
-                onAdd={() =>
-                  openCustomizeModal(item)
-                }
+                onFavorite={() => toggleFavorite(item.id)}
+                onAdd={() => openCustomizeModal(item)}
               />
             ))}
           </div>
@@ -900,33 +773,26 @@ export default function HomePage() {
       </section>
 
       {/* REVIEWS */}
-      <section
-        id="reviews"
-        className="bg-gray-50 py-16"
-      >
+      <section id="reviews" className="bg-gray-50 py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
           <div className="text-center">
             <p className="text-xs font-black uppercase tracking-wider text-orange-500">
               Customer love
             </p>
 
-            <h2 className="mt-2 text-3xl font-black">
-              What people say
-            </h2>
+            <h2 className="mt-2 text-3xl font-black">What people say</h2>
           </div>
 
           <div className="relative mt-8 rounded-3xl bg-white p-7 shadow-sm sm:p-10">
             <div className="flex justify-center gap-1">
-              {Array.from({ length: 5 }).map(
-                (_, index) => (
-                  <Star
-                    key={index}
-                    size={20}
-                    className="text-yellow-400"
-                    fill="currentColor"
-                  />
-                )
-              )}
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Star
+                  key={index}
+                  size={20}
+                  className="text-yellow-400"
+                  fill="currentColor"
+                />
+              ))}
             </div>
 
             <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium leading-8 text-gray-700">
@@ -934,13 +800,9 @@ export default function HomePage() {
             </p>
 
             <div className="mt-6 text-center">
-              <p className="font-black">
-                {reviews[currentReview].name}
-              </p>
+              <p className="font-black">{reviews[currentReview].name}</p>
 
-              <p className="mt-1 text-xs text-gray-400">
-                Verified customer
-              </p>
+              <p className="mt-1 text-xs text-gray-400">Verified customer</p>
             </div>
 
             <button
@@ -966,18 +828,15 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-[2rem] bg-gray-950 px-6 py-12 text-center text-white sm:px-10">
           <div className="mx-auto max-w-2xl">
-            <Sparkles
-              size={30}
-              className="mx-auto text-orange-500"
-            />
+            <Sparkles size={30} className="mx-auto text-orange-500" />
 
             <h2 className="mt-5 text-3xl font-black sm:text-4xl">
               Ready to satisfy your cravings?
             </h2>
 
             <p className="mt-4 text-sm leading-6 text-gray-400">
-              Pick your favourite food, customize it your
-              way and place your order in just a few clicks.
+              Pick your favourite food, customize it your way and place your
+              order in just a few clicks.
             </p>
 
             <a
@@ -991,62 +850,250 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
-          <div>
-            <p className="text-xl font-black">
-              foodie<span className="text-orange-500">.</span>
-            </p>
+      {/* PREMIUM FOOTER */}
+      <footer className="bg-gray-950 text-white">
+        {/* Main Footer */}
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+            {/* BRAND */}
+            <div className="lg:col-span-1">
+              <Link
+                href="/"
+                className="inline-block text-3xl font-black tracking-tight"
+              >
+                foodie<span className="text-orange-500">.</span>
+              </Link>
 
-            <p className="mt-1 text-xs text-gray-400">
-              Fresh food. Fast delivery. Happy customers.
-            </p>
+              <p className="mt-4 max-w-xs text-sm leading-6 text-gray-400">
+                Delicious food, made fresh and delivered straight to your
+                doorstep. Good food, good mood.
+              </p>
+
+              {/* Rating */}
+              <div className="mt-6 inline-flex items-center gap-3 rounded-2xl border border-gray-800 bg-gray-900 px-4 py-3">
+                <div className="flex items-center gap-1">
+                  <Star
+                    size={16}
+                    fill="currentColor"
+                    className="text-yellow-400"
+                  />
+                  <span className="font-black">4.9</span>
+                </div>
+
+                <div className="h-4 w-px bg-gray-700" />
+
+                <span className="text-xs text-gray-400">
+                  Loved by customers
+                </span>
+              </div>
+            </div>
+
+            {/* QUICK LINKS */}
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-wider text-white">
+                Explore
+              </h3>
+
+              <div className="mt-5 space-y-3">
+                <a
+                  href="#menu"
+                  className="block text-sm text-gray-400 transition hover:translate-x-1 hover:text-orange-500"
+                >
+                  Our Menu
+                </a>
+
+                <a
+                  href="#offers"
+                  className="block text-sm text-gray-400 transition hover:translate-x-1 hover:text-orange-500"
+                >
+                  Special Offers
+                </a>
+
+                <a
+                  href="#reviews"
+                  className="block text-sm text-gray-400 transition hover:translate-x-1 hover:text-orange-500"
+                >
+                  Customer Reviews
+                </a>
+
+                <Link
+                  href="/cart"
+                  className="block text-sm text-gray-400 transition hover:translate-x-1 hover:text-orange-500"
+                >
+                  Shopping Cart
+                </Link>
+              </div>
+            </div>
+
+            {/* CUSTOMER */}
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-wider text-white">
+                Customer
+              </h3>
+
+              <div className="mt-5 space-y-3">
+                <Link
+                  href="/order-history"
+                  className="flex items-center gap-2 text-sm text-gray-400 transition hover:translate-x-1 hover:text-orange-500"
+                >
+                  <History size={15} />
+                  My Orders
+                </Link>
+
+                <a
+                  href="#menu"
+                  className="block text-sm text-gray-400 transition hover:translate-x-1 hover:text-orange-500"
+                >
+                  Order Food
+                </a>
+
+                <Link
+                  href="/cart"
+                  className="block text-sm text-gray-400 transition hover:translate-x-1 hover:text-orange-500"
+                >
+                  Checkout
+                </Link>
+
+                <Link
+                  href="/admin/orders"
+                  className="block text-sm text-gray-400 transition hover:translate-x-1 hover:text-orange-500"
+                >
+                  Admin Panel
+                </Link>
+              </div>
+            </div>
+
+            {/* CONTACT */}
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-wider text-white">
+                Get in touch
+              </h3>
+
+              <div className="mt-5 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+                    <Clock3 size={17} />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-bold text-gray-300">
+                      Delivery Hours
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      10:00 AM – 11:00 PM
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+                    <Truck size={17} />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-bold text-gray-300">
+                      Fast Delivery
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      Fresh food in ~30 minutes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+                    <Sparkles size={17} />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-bold text-gray-300">
+                      Fresh & Delicious
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      Made fresh for every order
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-5 text-xs font-semibold text-gray-500">
-            <a
-              href="#menu"
-              className="hover:text-orange-500"
-            >
-              Menu
-            </a>
+          {/* FOOTER CTA */}
+          <div className="mt-12 overflow-hidden rounded-3xl border border-gray-800 bg-gradient-to-r from-gray-900 to-gray-950 p-6 sm:p-7">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Sparkles size={17} className="text-orange-500" />
 
-            <a
-              href="#offers"
-              className="hover:text-orange-500"
-            >
-              Offers
-            </a>
+                  <p className="text-xs font-black uppercase tracking-wider text-orange-500">
+                    Hungry already?
+                  </p>
+                </div>
 
-            {/* NEW */}
-            <Link
-              href="/order-history"
-              className="flex items-center gap-1 hover:text-orange-500"
-            >
-              <History size={14} />
-              My Orders
-            </Link>
+                <h3 className="mt-2 text-xl font-black sm:text-2xl">
+                  Your next favourite meal is waiting.
+                </h3>
 
-            <Link
-              href="/cart"
-              className="hover:text-orange-500"
-            >
-              Cart
-            </Link>
+                <p className="mt-1 text-sm text-gray-500">
+                  Explore the menu and order something delicious.
+                </p>
+              </div>
 
-            <Link
-              href="/admin/orders"
-              className="hover:text-orange-500"
-            >
-              Admin
-            </Link>
+              <a
+                href="#menu"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-black text-white transition hover:bg-orange-600"
+              >
+                Explore Menu
+                <ArrowRight size={17} />
+              </a>
+            </div>
           </div>
-        </div>
 
-        <div className="border-t py-4 text-center text-xs text-gray-400">
-          © {new Date().getFullYear()} Foodie. All rights
-          reserved.
+          {/* DIVIDER */}
+          <div className="my-10 h-px bg-gray-800" />
+
+          {/* BOTTOM */}
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-bold text-gray-300">
+                foodie<span className="text-orange-500">.</span>
+              </p>
+
+              <p className="mt-1 text-xs text-gray-600">
+                © {new Date().getFullYear()} Foodie. All rights reserved.
+              </p>
+            </div>
+
+            {/* Social / Mini Actions */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="Instagram"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-800 bg-gray-900 text-gray-400 transition hover:border-orange-500 hover:bg-orange-500 hover:text-white"
+              >
+                <span className="text-sm font-black">IG</span>
+              </button>
+
+              <button
+                type="button"
+                aria-label="Facebook"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-800 bg-gray-900 text-gray-400 transition hover:border-orange-500 hover:bg-orange-500 hover:text-white"
+              >
+                <span className="text-sm font-black">f</span>
+              </button>
+
+              <button
+                type="button"
+                aria-label="Twitter"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-800 bg-gray-900 text-gray-400 transition hover:border-orange-500 hover:bg-orange-500 hover:text-white"
+              >
+                <span className="text-sm font-black">𝕏</span>
+              </button>
+            </div>
+          </div>
         </div>
       </footer>
 
@@ -1066,9 +1113,7 @@ export default function HomePage() {
               {cartCount > 1 ? "s" : ""}
             </p>
 
-            <p className="text-sm font-black">
-              ₹{subtotal.toFixed(2)}
-            </p>
+            <p className="text-sm font-black">₹{subtotal.toFixed(2)}</p>
           </div>
 
           <ArrowRight size={18} />
@@ -1111,13 +1156,9 @@ export default function HomePage() {
             <div className="p-5 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">
-                    Base price
-                  </p>
+                  <p className="text-sm text-gray-500">Base price</p>
 
-                  <p className="text-xl font-black">
-                    ₹{selectedItem.price}
-                  </p>
+                  <p className="text-xl font-black">₹{selectedItem.price}</p>
                 </div>
 
                 <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-500">
@@ -1127,64 +1168,50 @@ export default function HomePage() {
 
               {selectedItemAddons.length > 0 && (
                 <div className="mt-7">
-                  <h3 className="text-lg font-black">
-                    Customize
-                  </h3>
+                  <h3 className="text-lg font-black">Customize</h3>
 
                   <p className="mt-1 text-sm text-gray-500">
                     Choose extra toppings or add-ons.
                   </p>
 
                   <div className="mt-4 space-y-2">
-                    {selectedItemAddons.map(
-                      (addon) => {
-                        const selected =
-                          selectedAddons.some(
-                            (item) =>
-                              item.id === addon.id
-                          );
+                    {selectedItemAddons.map((addon) => {
+                      const selected = selectedAddons.some(
+                        (item) => item.id === addon.id,
+                      );
 
-                        return (
-                          <button
-                            key={addon.id}
-                            onClick={() =>
-                              toggleAddon(addon)
-                            }
-                            className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition ${
-                              selected
-                                ? "border-orange-500 bg-orange-50"
-                                : "border-gray-200 hover:border-orange-300"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`flex h-6 w-6 items-center justify-center rounded-lg border ${
-                                  selected
-                                    ? "border-orange-500 bg-orange-500 text-white"
-                                    : "border-gray-300"
-                                }`}
-                              >
-                                {selected && (
-                                  <Check
-                                    size={15}
-                                  />
-                                )}
-                              </div>
-
-                              <span className="text-sm font-bold">
-                                {addon.name}
-                              </span>
+                      return (
+                        <button
+                          key={addon.id}
+                          onClick={() => toggleAddon(addon)}
+                          className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition ${
+                            selected
+                              ? "border-orange-500 bg-orange-50"
+                              : "border-gray-200 hover:border-orange-300"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`flex h-6 w-6 items-center justify-center rounded-lg border ${
+                                selected
+                                  ? "border-orange-500 bg-orange-500 text-white"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {selected && <Check size={15} />}
                             </div>
 
-                            <span className="text-sm font-black text-orange-500">
-                              {addon.price === 0
-                                ? "Free"
-                                : `+₹${addon.price}`}
+                            <span className="text-sm font-bold">
+                              {addon.name}
                             </span>
-                          </button>
-                        );
-                      }
-                    )}
+                          </div>
+
+                          <span className="text-sm font-black text-orange-500">
+                            {addon.price === 0 ? "Free" : `+₹${addon.price}`}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1192,9 +1219,7 @@ export default function HomePage() {
               <div className="mt-7 border-t pt-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-500">
-                      Total
-                    </p>
+                    <p className="text-xs text-gray-500">Total</p>
 
                     <p className="text-2xl font-black text-gray-900">
                       ₹{selectedItemTotal}
@@ -1218,42 +1243,21 @@ export default function HomePage() {
   );
 }
 
-function HeroStat({
-  value,
-  label,
-}: {
-  value: string;
-  label: string;
-}) {
+function HeroStat({ value, label }: { value: string; label: string }) {
   return (
     <div>
-      <p className="text-xl font-black text-white sm:text-2xl">
-        {value}
-      </p>
+      <p className="text-xl font-black text-white sm:text-2xl">{value}</p>
 
-      <p className="mt-1 text-xs text-gray-500">
-        {label}
-      </p>
+      <p className="mt-1 text-xs text-gray-500">{label}</p>
     </div>
   );
 }
 
-function TrendingCard({
-  item,
-  onAdd,
-}: {
-  item: MenuItem;
-  onAdd: () => void;
-}) {
+function TrendingCard({ item, onAdd }: { item: MenuItem; onAdd: () => void }) {
   return (
     <div className="w-64 shrink-0 overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
       <div className="relative h-40">
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          className="object-cover"
-        />
+        <Image src={item.image} alt={item.name} fill className="object-cover" />
 
         <div className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-black text-orange-500 backdrop-blur">
           Popular
@@ -1261,18 +1265,12 @@ function TrendingCard({
       </div>
 
       <div className="p-4">
-        <p className="text-xs font-bold text-orange-500">
-          {item.category}
-        </p>
+        <p className="text-xs font-bold text-orange-500">{item.category}</p>
 
-        <h3 className="mt-1 truncate font-black">
-          {item.name}
-        </h3>
+        <h3 className="mt-1 truncate font-black">{item.name}</h3>
 
         <div className="mt-3 flex items-center justify-between">
-          <span className="font-black">
-            ₹{item.price}
-          </span>
+          <span className="font-black">₹{item.price}</span>
 
           <button
             onClick={onAdd}
@@ -1325,31 +1323,21 @@ function MenuCard({
         >
           <Heart
             size={18}
-            fill={
-              favorite ? "currentColor" : "none"
-            }
-            className={
-              favorite ? "text-red-500" : ""
-            }
+            fill={favorite ? "currentColor" : "none"}
+            className={favorite ? "text-red-500" : ""}
           />
         </button>
 
         <div className="absolute bottom-4 left-4 text-white">
           <div className="flex items-center gap-1 text-xs font-bold">
-            <Star
-              size={13}
-              fill="currentColor"
-              className="text-yellow-400"
-            />
+            <Star size={13} fill="currentColor" className="text-yellow-400" />
             4.9
           </div>
         </div>
       </div>
 
       <div className="p-5">
-        <h3 className="text-lg font-black">
-          {item.name}
-        </h3>
+        <h3 className="text-lg font-black">{item.name}</h3>
 
         <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-gray-500">
           {item.description}
@@ -1357,13 +1345,9 @@ function MenuCard({
 
         <div className="mt-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs text-gray-400">
-              Starting from
-            </p>
+            <p className="text-xs text-gray-400">Starting from</p>
 
-            <p className="text-xl font-black">
-              ₹{item.price}
-            </p>
+            <p className="text-xl font-black">₹{item.price}</p>
           </div>
 
           <button
@@ -1379,11 +1363,7 @@ function MenuCard({
   );
 }
 
-function OrderStatusBadge({
-  status,
-}: {
-  status: OrderStatus;
-}) {
+function OrderStatusBadge({ status }: { status: OrderStatus }) {
   const styles: Record<OrderStatus, string> = {
     Pending: "bg-orange-100 text-orange-600",
     Accepted: "bg-blue-100 text-blue-600",

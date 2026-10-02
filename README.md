@@ -1,8 +1,8 @@
 # 🍔 Restaurant Ordering App
 
-A modern, responsive full-stack restaurant online ordering and order management application built with **Next.js, TypeScript, Tailwind CSS, and MongoDB Atlas**.
+A modern, responsive **full-stack restaurant online ordering and order management application** built with **Next.js, TypeScript, Tailwind CSS, and MongoDB Atlas**.
 
-The application allows customers to browse restaurant menu items, search and filter food, manage their cart, place orders, and receive an order confirmation. It also includes an admin dashboard for viewing and managing customer orders.
+The application provides a complete food-ordering experience where customers can browse and customize menu items, manage their cart, place orders, track order status, and view order history. It also includes a dedicated admin dashboard for managing customer orders and updating their status.
 
 ---
 
@@ -20,58 +20,80 @@ https://github.com/OmmPrakash-07/restaurant-ordering-app
 
 ### 👨‍🍳 Customer Features
 
-* Browse restaurant menu
-* Restaurant information section
-* Food categories
-* Search menu items by name
-* Filter items by category
-* Responsive food cards
-* Food images, descriptions, and prices
-* Add items to cart
-* Increase/decrease item quantity
-* Remove items from cart
-* Persistent cart using `localStorage`
-* Automatic subtotal calculation
-* 5% tax calculation
-* Grand total calculation
-* Responsive cart page
-* Checkout form
-* Client-side form validation
-* Order submission
-* Order success confirmation
-* Unique Order ID generation
+* 🍕 Browse restaurant menu
+* 🔎 Search menu items by name and description
+* 🏷️ Filter menu items by category
+* 🖼️ Food images, descriptions, prices, and categories
+* ⭐ Trending / popular food section
+* ❤️ Add and remove favourite items
+* 🧀 Customize food with add-ons
+* 🛒 Add customized items to cart
+* ➕ Increase item quantity
+* ➖ Decrease item quantity
+* 🗑️ Remove items from cart
+* 💾 Persistent cart using `localStorage`
+* 💰 Automatic subtotal calculation
+* 🧾 Automatic 5% tax calculation
+* 💵 Automatic grand total calculation
+* 📱 Responsive cart experience
+* 📝 Checkout form
+* ✅ Client-side form validation
+* 📦 Place customer orders
+* 🆔 Unique order ID generation
+* 🎉 Order confirmation page
+* 📍 Real-time-style order status tracking
+* 🔄 Automatic order status refresh
+* 📜 Customer order history
+* 🔁 Reorder previous orders
+* ⭐ Customer reviews section
+* 📱 Responsive mobile navigation
 
 ### 🛠️ Admin Features
 
-* Separate admin orders dashboard
-* View all customer orders
-* Order statistics
-* Filter orders by status
-* View customer information
-* View ordered items
-* View order totals
-* Update order status
-* Supported statuses:
+* 📊 Dedicated admin order dashboard
+* 📦 View all customer orders
+* 📈 Order statistics
+* 💰 Total order/revenue information
+* 🔎 Search orders
+* 🏷️ Filter orders by status
+* 👤 View customer information
+* 📋 View ordered items
+* 🧀 View selected add-ons
+* 💵 View subtotal, tax, and total
+* 🔄 Update order status
+* 💾 Order status persists in MongoDB
+* 📱 Responsive admin dashboard
 
-  * Pending
-  * Accepted
-  * Preparing
-  * Completed
-* Order status persists in MongoDB
+### 📌 Supported Order Statuses
+
+```text
+Pending
+Accepted
+Preparing
+Completed
+```
 
 ### ⚡ Technical Features
 
 * Next.js App Router
 * TypeScript
+* React
 * Tailwind CSS
 * React Context API
 * MongoDB Atlas
+* MongoDB Node.js Driver
 * Next.js API Routes
-* Server and Client Components
-* Responsive design
+* Server Components
+* Client Components
+* `localStorage` persistence
+* REST-style API endpoints
+* Form validation
+* Reusable React components
+* Responsive UI
 * Loading states
 * Empty states
 * Error handling
+* API validation
 * Environment variable support
 * Vercel deployment
 
@@ -79,18 +101,20 @@ https://github.com/OmmPrakash-07/restaurant-ordering-app
 
 ## 🧰 Tech Stack
 
-| Technology             | Purpose                       |
-| ---------------------- | ----------------------------- |
-| Next.js                | Full-stack React framework    |
-| TypeScript             | Type safety                   |
-| React                  | UI development                |
-| Tailwind CSS           | Styling and responsive design |
-| MongoDB Atlas          | Order database                |
-| MongoDB Node.js Driver | Database connection           |
-| React Context API      | Cart state management         |
-| Lucide React           | Icons                         |
-| Vercel                 | Deployment                    |
-| Git & GitHub           | Version control               |
+| Technology                 | Purpose                       |
+| -------------------------- | ----------------------------- |
+| **Next.js**                | Full-stack React framework    |
+| **React**                  | UI development                |
+| **TypeScript**             | Type safety                   |
+| **Tailwind CSS**           | Styling and responsive design |
+| **MongoDB Atlas**          | Cloud database                |
+| **MongoDB Node.js Driver** | Database connectivity         |
+| **React Context API**      | Cart state management         |
+| **React Hook Form**        | Form management               |
+| **Zod**                    | Form/schema validation        |
+| **Lucide React**           | Icons                         |
+| **Vercel**                 | Production deployment         |
+| **Git & GitHub**           | Version control               |
 
 ---
 
@@ -119,9 +143,15 @@ restaurant-ordering-app/
 │   ├── checkout/
 │   │   └── page.tsx
 │   │
+│   ├── order-history/
+│   │   └── page.tsx
+│   │
 │   ├── order-success/
 │   │   ├── page.tsx
 │   │   └── OrderSuccessContent.tsx
+│   │
+│   ├── order-tracking/
+│   │   └── page.tsx
 │   │
 │   ├── globals.css
 │   ├── layout.tsx
@@ -132,6 +162,7 @@ restaurant-ordering-app/
 │       └── CartContext.tsx
 │
 ├── data/
+│   ├── addons.ts
 │   └── menu.json
 │
 ├── lib/
@@ -157,43 +188,70 @@ restaurant-ordering-app/
 ## 🔄 Application Flow
 
 ```text
-Customer
-   │
-   ▼
-Home / Menu
-   │
-   ├── Search
-   ├── Category Filter
-   └── Add to Cart
-          │
-          ▼
-        Cart
-          │
-          ├── Increase Quantity
-          ├── Decrease Quantity
-          └── Remove Item
-          │
-          ▼
-       Checkout
-          │
-          ├── Customer Details
-          └── Validation
-          │
-          ▼
-      POST /api/orders
-          │
-          ▼
-     MongoDB Atlas
-          │
-          ▼
-    Order Success
-          │
-          ▼
-    Admin Dashboard
-          │
-          ├── View Orders
-          ├── Filter Orders
-          └── Update Status
+                         CUSTOMER
+                            │
+                            ▼
+                     Home / Menu Page
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+           Search       Categories    Favorites
+              │             │             │
+              └─────────────┼─────────────┘
+                            │
+                            ▼
+                    Customize Food
+                            │
+                       Add-ons
+                            │
+                            ▼
+                          Cart
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+         Quantity       Remove Item    Persistence
+                            │
+                            ▼
+                        Checkout
+                            │
+                   Customer Details
+                            │
+                       Validation
+                            │
+                            ▼
+                    POST /api/orders
+                            │
+                            ▼
+                      MongoDB Atlas
+                            │
+                            ▼
+                    Order Confirmation
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+              ▼                           ▼
+       Order Tracking                Order History
+              │                           │
+              ▼                           ▼
+       Status Updates                  Reorder
+              │
+              ▼
+       Pending → Accepted
+              → Preparing
+              → Completed
+                            │
+                            ▼
+                    ADMIN DASHBOARD
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+           View Orders    Search       Filter
+                            │
+                            ▼
+                    Update Order Status
+                            │
+                            ▼
+                      MongoDB Atlas
 ```
 
 ---
@@ -208,7 +266,7 @@ Home / Menu
 GET /api/menu
 ```
 
-Returns all available restaurant menu items.
+Returns the available restaurant menu items from the application's menu data source.
 
 ---
 
@@ -220,7 +278,7 @@ Returns all available restaurant menu items.
 GET /api/orders
 ```
 
-Returns all customer orders.
+Returns customer orders stored in MongoDB.
 
 #### Create Order
 
@@ -228,7 +286,7 @@ Returns all customer orders.
 POST /api/orders
 ```
 
-Creates a new customer order and stores it in MongoDB.
+Creates a new customer order after validating menu items, quantities, and selected add-ons.
 
 Example request:
 
@@ -243,7 +301,12 @@ Example request:
   "items": [
     {
       "menuItemId": "pizza-1",
-      "quantity": 2
+      "quantity": 2,
+      "addons": [
+        {
+          "id": "extra-cheese"
+        }
+      ]
     }
   ]
 }
@@ -251,7 +314,17 @@ Example request:
 
 ---
 
-### Update Order Status
+### Order API
+
+#### Get Single Order
+
+```http
+GET /api/orders/:id
+```
+
+Returns details of a specific order.
+
+#### Update Order Status
 
 ```http
 PATCH /api/orders/:id
@@ -276,9 +349,11 @@ Completed
 
 ---
 
-## 🛒 Cart Persistence
+## 🛒 Cart System
 
-Cart information is stored in the browser using:
+The application uses **React Context API** to manage cart state across the application.
+
+Cart data is persisted in the browser using:
 
 ```text
 localStorage
@@ -290,30 +365,51 @@ Storage key:
 foodie-cart
 ```
 
-This allows customers to refresh the page without losing their current cart.
+This allows customers to refresh or revisit the page without immediately losing their current cart.
+
+The cart also supports customized items.
+
+For example:
+
+```text
+Margherita Pizza
+├── Extra Cheese
+└── Extra Mushroom
+```
+
+Different add-on combinations are treated as separate cart items.
 
 ---
 
 ## 💰 Order Calculation
 
-The application calculates the order amount automatically.
+The application automatically calculates the order amount.
 
 ```text
-Subtotal = Σ (Item Price × Quantity)
+Item Total = Item Price + Selected Add-ons
+
+Subtotal = Σ (Item Total × Quantity)
 
 Tax = Subtotal × 5%
 
 Grand Total = Subtotal + Tax
 ```
 
-Example:
+### Example
 
 ```text
-Subtotal:    ₹500
-Tax (5%):     ₹25
-------------------
-Total:       ₹525
+Pizza                  ₹249
+Extra Cheese            ₹40
+Quantity                 ×2
+--------------------------------
+Item Total             ₹289 × 2
+Subtotal               ₹578
+Tax (5%)                ₹28.90
+--------------------------------
+Grand Total            ₹606.90
 ```
+
+The final amount is recalculated on the server before the order is stored.
 
 ---
 
@@ -321,13 +417,13 @@ Total:       ₹525
 
 Orders are stored in **MongoDB Atlas**.
 
-Database:
+### Database
 
 ```text
 restaurant_ordering
 ```
 
-Collection:
+### Collection
 
 ```text
 orders
@@ -339,14 +435,16 @@ Each order contains:
 Order ID
 Customer Details
 Ordered Items
+Selected Add-ons
+Item Quantities
 Subtotal
 Tax
 Total
-Status
+Order Status
 Created At
 ```
 
-MongoDB is used instead of local file storage so that orders can persist correctly in a cloud deployment such as Vercel.
+MongoDB is used instead of local file storage so that customer orders persist correctly in a cloud deployment such as Vercel.
 
 ---
 
@@ -360,15 +458,13 @@ MONGODB_URI="your_mongodb_connection_string"
 
 ### Important
 
-Never commit `.env.local` to GitHub.
+Never commit `.env.local` or your MongoDB credentials to GitHub.
 
-The project uses:
+For production deployment, configure the same variable in:
 
 ```text
-.env.local
+Vercel → Project Settings → Environment Variables
 ```
-
-for local development and Vercel Environment Variables for production.
 
 ---
 
@@ -406,7 +502,7 @@ Add:
 MONGODB_URI="your_mongodb_connection_string"
 ```
 
-### 5. Start development server
+### 5. Start the development server
 
 ```bash
 npm run dev
@@ -422,13 +518,13 @@ http://localhost:3000
 
 ## 🏗️ Production Build
 
-To create a production build:
+Create a production build:
 
 ```bash
 npm run build
 ```
 
-To run the production server:
+Start the production server:
 
 ```bash
 npm start
@@ -440,22 +536,25 @@ npm start
 
 The application is deployed using **Vercel**.
 
-Deployment architecture:
+### Deployment Architecture
 
 ```text
-GitHub
-   │
-   ▼
-Vercel
-   │
-   ├── Next.js Application
-   └── API Routes
-          │
-          ▼
-     MongoDB Atlas
+                    GitHub
+                       │
+                       ▼
+                    Vercel
+                       │
+             ┌─────────┴─────────┐
+             │                   │
+        Next.js App          API Routes
+             │                   │
+             └─────────┬─────────┘
+                       │
+                       ▼
+                 MongoDB Atlas
 ```
 
-The `MONGODB_URI` environment variable is configured in Vercel for production.
+The production `MONGODB_URI` is configured through Vercel Environment Variables.
 
 ---
 
@@ -468,51 +567,91 @@ The application is designed to work across:
 * 📱 Mobile
 * 📱 Tablet
 
-The UI uses Tailwind CSS responsive utilities to adapt layouts to different screen sizes.
+Tailwind CSS responsive utilities are used to adapt layouts, navigation, cards, forms, dashboards, and modals across different screen sizes.
 
 ---
 
 ## 🧩 Main Pages
 
-| Page             | Description            |
-| ---------------- | ---------------------- |
-| `/`              | Restaurant menu        |
-| `/cart`          | Shopping cart          |
-| `/checkout`      | Customer checkout      |
-| `/order-success` | Order confirmation     |
-| `/admin/orders`  | Admin order management |
+| Route             | Description                      |
+| ----------------- | -------------------------------- |
+| `/`               | Restaurant homepage and menu     |
+| `/cart`           | Shopping cart                    |
+| `/checkout`       | Customer checkout                |
+| `/order-success`  | Order confirmation               |
+| `/order-tracking` | Track current order status       |
+| `/order-history`  | View previous orders             |
+| `/admin/orders`   | Admin order management dashboard |
+
+---
+
+## 📊 Order Management
+
+The admin dashboard provides an overview of customer orders.
+
+Administrators can:
+
+```text
+View Orders
+     ↓
+Search Orders
+     ↓
+Filter by Status
+     ↓
+View Order Details
+     ↓
+View Customer Details
+     ↓
+View Items & Add-ons
+     ↓
+Update Order Status
+```
+
+Order status changes are stored in MongoDB and are reflected on the customer order-tracking page.
 
 ---
 
 ## 📸 Screenshots
 
-Add screenshots of your application here before final submission.
+Add screenshots of the deployed application here.
 
-### Home / Menu
-
-```text
-Add screenshot here
-```
-
-### Cart
+### 🏠 Home / Menu
 
 ```text
 Add screenshot here
 ```
 
-### Checkout
+### 🛒 Cart
 
 ```text
 Add screenshot here
 ```
 
-### Order Success
+### 📝 Checkout
 
 ```text
 Add screenshot here
 ```
 
-### Admin Dashboard
+### 🎉 Order Success
+
+```text
+Add screenshot here
+```
+
+### 📍 Order Tracking
+
+```text
+Add screenshot here
+```
+
+### 📜 Order History
+
+```text
+Add screenshot here
+```
+
+### 👨‍💼 Admin Dashboard
 
 ```text
 Add screenshot here
@@ -524,50 +663,107 @@ Add screenshot here
 
 Possible future enhancements include:
 
-* Admin authentication
-* Customer authentication
-* Online payment integration
-* Order tracking for customers
-* Restaurant open/close status
-* Inventory management
-* Coupon and discount system
-* Email/SMS order notifications
-* Customer order history
-* Multiple restaurant support
-* Advanced admin analytics
-* Role-based access control
+* 🔐 Admin authentication
+* 👤 Customer authentication
+* 💳 Online payment integration
+* 🎟️ Coupon and discount system
+* 📦 Inventory management
+* 🔔 Email/SMS order notifications
+* 🏪 Restaurant open/close status
+* 📊 Advanced admin analytics
+* 👥 Role-based access control
+* 🏬 Multiple restaurant support
+* 📈 Sales and revenue reports
+* 🔔 Real-time notifications using WebSockets
+* 💳 Payment gateway integration
+* 🚚 Delivery partner management
 
 ---
 
 ## 🎯 Project Objective
 
-The objective of this project is to demonstrate the development of a complete full-stack restaurant ordering system using modern web technologies.
+The objective of this project is to demonstrate the development of a complete **full-stack restaurant ordering and order management system** using modern web technologies.
 
-The project demonstrates:
+### This project demonstrates:
 
 * Frontend development
+* Responsive UI development
+* React state management
 * REST API development
-* State management
+* TypeScript type safety
 * Form validation
 * Database integration
 * CRUD operations
-* Responsive UI development
+* Server-side validation
+* Client-side validation
+* Local storage persistence
+* Order management
+* Admin dashboard development
 * Error handling
-* Cloud deployment
+* Loading and empty states
+* Cloud database integration
+* Vercel deployment
 * Git/GitHub workflow
+
+---
+
+## 💡 Key Highlights
+
+### Customer Experience
+
+```text
+Browse → Search → Customize → Cart
+       → Checkout → Order
+       → Track → Order History
+```
+
+### Admin Experience
+
+```text
+Orders → Search → Filter
+       → View Details
+       → Update Status
+       → MongoDB
+```
+
+### Data Flow
+
+```text
+Next.js Frontend
+       │
+       ▼
+Next.js API Routes
+       │
+       ▼
+Validation & Calculation
+       │
+       ▼
+MongoDB Atlas
+       │
+       ▼
+Admin Dashboard
+       │
+       ▼
+Customer Order Tracking
+```
 
 ---
 
 ## 👨‍💻 Developer
 
-**Omm Prakash Parida**
+### Omm Prakash Parida
 
-Full Stack Web Developer
+**Full Stack Web Developer**
 
-* GitHub: [OmmPrakash-07](https://github.com/OmmPrakash-07)
+* GitHub: https://github.com/OmmPrakash-07
+* Live Project: https://restaurant-ordering-app-xi.vercel.app
 
 ---
 
 ## 📄 License
 
-This project was developed for educational and assessment purposes.
+This project was developed for **educational and assessment purposes**.
+
+---
+
+⭐ If you found this project interesting, consider giving the repository a star!
